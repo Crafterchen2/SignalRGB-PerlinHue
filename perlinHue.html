@@ -1,0 +1,52 @@
+<head>
+  <title>Perlin Hue</title>
+  <meta description="A basic backdrop with the hue being determined by perlin noise"/>
+  <meta publisher="Benjamin Decker" />
+  <meta property="saturation" label="Saturation" type="number" default="100" min="0" max="100">
+  <meta property="brightness" label="Brightness" type="number" default="50" min="0" max="100">
+  <meta property="hueOffset" label="Hue Offset" type="number" default="0" min="0" max="360">
+  <meta property="scale" label="Scale" type="number" default="8" min="1" max="8">
+  <meta property="speed" label="Speed" type="number" default="1" min="1" max="10">
+  <script src="https://unpkg.com/perlin-noise-3d"></script>           <!-- 3D Perlin Noise Link-->
+</head>
+
+<body style="margin: 0; padding: 0;">
+<canvas id="exCanvas" width="320" height="200"></canvas>
+</body>
+
+<script>
+  console.clear();
+  var c = document.getElementById("exCanvas");
+  var ctx = c.getContext("2d");
+  var width = 320;
+  var height = 200;
+
+  const noise = new perlinNoise3d();          // New instances of Noise3D, returns object
+
+  let noiseStep = 1;
+  noise.noiseSeed(20);
+
+  let z = 0;
+
+  function update() {
+    scale = Math.floor(scale);
+
+    for(let y = 0; y < height / scale; y++ ) {                  // Nested loop generates a row of pixels (x) for every column (y)
+      for(let x = 0; x < width / scale; x++ ) {
+        let hue = noise.get(x / 10, y / 10, z / 10);          // noise.get() returns x, y, and z coordinate
+
+        hue *= hue * 360;                                             // Hue color value
+        hue = (hue + hueOffset) % 360
+
+        ctx.fillStyle = "hsl(" + hue + "," + saturation + "%," + brightness + "%)";
+        ctx.fillRect( x * scale, y * scale, 1 * scale, 1 * scale );         // Draws one pixel with scaling
+        noiseStep += 0.1;
+      }
+    }
+    z += (speed / 10);                                           // Determines speed of traversing the Z axis
+    window.requestAnimationFrame(update);
+  }
+
+  window.requestAnimationFrame(update);
+
+</script>
